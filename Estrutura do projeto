@@ -1,0 +1,11 @@
+EstoqueSimples/
+├── app.py              ← servidor Flask + rotas + banco
+├── requirements.txt    ← dependência (só Flask)
+├── README.md           ← instruções de uso
+└── templates/
+    ├── base.html           ← layout + sidebar
+    ├── dashboard.html      ← visão geral + alertas
+    ├── produtos.html       ← listagem com filtros
+    ├── form_produto.html   ← cadastro/edição
+    ├── movimentacoes.html  ← histórico
+    └── form_movimentacao.html ← entrada/saída
