@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Produtos — EstoqueSimples{% endblock %}
+{% block page_title %}Produtos{% endblock %}
+{% block topbar_actions %}
+    <a href="{{ url_for('novo_produto') }}" class="btn btn-verde">➕ Novo Produto</a>
+{% endblock %}
+
+{% block content %}
+
+<form method="GET" class="busca-bar">
+    <input type="text" name="busca" placeholder="🔍 Buscar produto..." value="{{ busca }}">
+    <select name="categoria">
+        <option value="">Todas as categorias</option>
+        {% for c in categorias %}
+            <option value="{{ c['categoria'] }}" {% if categoria == c['categoria'] %}selected{% endif %}>
+                {{ c['categoria'] }}
+            </option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-outline">Filtrar</button>
+    {% if busca or categoria %}
+        <a href="{{ url_for('listar_produtos') }}" class="btn btn-outline">✕ Limpar</a>
+    {% endif %}
+</form>
+
+<div class="tabela-wrap">
+    <div class="tabela-header">
+        <h3>📦 {{ produtos|length }} produto(s) encontrado(s)</h3>
+    </div>
+    {% if produtos %}
+    <table>
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Qtd em estoque</th>
+                <th>Preço custo</th>
+                <th>Preço venda</th>
+                <th>Valor total</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in produtos %}
+            <tr>
+                <td>
+                    <strong>{{ p['nome'] }}</strong>
+                    {% if p['descricao'] %}
+                        <div style="font-size:0.76rem; color:var(--texto-suave); margin-top:2px">{{ p['descricao'][:50] }}{% if p['descricao']|length > 50 %}...{% endif %}</div>
+                    {% endif %}
+                </td>
+                <td>{{ p['categoria'] or '—' }}</td>
+                <td><strong>{{ p['quantidade'] }}</strong></td>
+                <td>R$ {{ "%.2f"|format(p['preco_custo']) }}</td>
+                <td>R$ {{ "%.2f"|format(p['preco_venda']) }}</td>
+                <td>R$ {{ "%.2f"|format(p['preco_custo'] * p['quantidade']) }}</td>
+                <td>
+                    {% if p['quantidade'] == 0 %}
+                        <span class="badge critico">Zerado</span>
+                    {% elif p['quantidade'] <= p['estoque_minimo'] %}
+                        <span class="badge baixo">Baixo</span>
+                    {% else %}
+                        <span class="badge ok">OK</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap">
+                        <a href="{{ url_for('editar_produto', id=p['id']) }}" class="btn btn-outline btn-sm">✏️ Editar</a>
+                        <form method="POST" action="{{ url_for('excluir_produto', id=p['id']) }}"
+                              onsubmit="return confirm('Excluir o produto \'{{ p['nome'] }}\'? Todas as movimentações serão removidas.')">
+                            <button type="submit" class="btn btn-vermelho btn-sm">🗑️</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">
+        <div class="icon">📦</div>
+        <p>Nenhum produto encontrado.</p>
+        <a href="{{ url_for('novo_produto') }}" class="btn btn-verde" style="margin-top:14px">➕ Cadastrar primeiro produto</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

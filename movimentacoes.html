@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Movimentações — EstoqueSimples{% endblock %}
+{% block page_title %}Movimentações{% endblock %}
+{% block topbar_actions %}
+    <a href="{{ url_for('nova_movimentacao') }}" class="btn btn-verde">➕ Nova Movimentação</a>
+{% endblock %}
+
+{% block content %}
+
+<form method="GET" class="busca-bar">
+    <select name="tipo" onchange="this.form.submit()">
+        <option value="">Todas as movimentações</option>
+        <option value="entrada" {% if tipo == 'entrada' %}selected{% endif %}>📥 Entradas</option>
+        <option value="saida"   {% if tipo == 'saida'   %}selected{% endif %}>📤 Saídas</option>
+    </select>
+    {% if tipo %}
+        <a href="{{ url_for('listar_movimentacoes') }}" class="btn btn-outline">✕ Limpar</a>
+    {% endif %}
+</form>
+
+<div class="tabela-wrap">
+    <div class="tabela-header">
+        <h3>🔄 {{ movimentacoes|length }} movimentação(ões)</h3>
+    </div>
+    {% if movimentacoes %}
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Produto</th>
+                <th>Tipo</th>
+                <th>Quantidade</th>
+                <th>Observação</th>
+                <th>Data/Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in movimentacoes %}
+            <tr>
+                <td style="color:var(--texto-suave); font-size:0.78rem">{{ m['id'] }}</td>
+                <td><strong>{{ m['produto_nome'] }}</strong></td>
+                <td>
+                    <span class="badge {{ m['tipo'] }}">
+                        {{ '📥 Entrada' if m['tipo'] == 'entrada' else '📤 Saída' }}
+                    </span>
+                </td>
+                <td><strong>{{ m['quantidade'] }}</strong> un.</td>
+                <td style="color:var(--texto-suave)">{{ m['observacao'] or '—' }}</td>
+                <td style="color:var(--texto-suave); font-size:0.82rem">{{ m['data'][:16] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty">
+        <div class="icon">🔄</div>
+        <p>Nenhuma movimentação encontrada.</p>
+        <a href="{{ url_for('nova_movimentacao') }}" class="btn btn-verde" style="margin-top:14px">➕ Registrar primeira movimentação</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

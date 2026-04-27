@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Nova Movimentação — EstoqueSimples{% endblock %}
+{% block page_title %}Nova Movimentação{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-produto {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-top: 12px;
+        font-size: 0.86rem;
+        display: none;
+    }
+    .info-produto.visivel { display: block; }
+    .info-produto strong { color: var(--verde-escuro); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-card">
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group form-full">
+                <label>Produto *</label>
+                <select name="produto_id" id="selectProduto" required onchange="mostrarInfo()">
+                    <option value="">— Selecione um produto —</option>
+                    {% for p in produtos %}
+                        <option value="{{ p['id'] }}"
+                            data-qtd="{{ p['quantidade'] }}"
+                            data-min="{{ p['estoque_minimo'] }}"
+                            data-nome="{{ p['nome'] }}">
+                            {{ p['nome'] }} (estoque: {{ p['quantidade'] }} un.)
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="info-produto" id="infoProduto">
+                    Estoque atual: <strong id="infoQtd">—</strong> unidades &nbsp;|&nbsp;
+                    Estoque mínimo: <strong id="infoMin">—</strong>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tipo *</label>
+                <select name="tipo" required>
+                    <option value="entrada">📥 Entrada (compra/reposição)</option>
+                    <option value="saida">📤 Saída (venda/uso)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Quantidade *</label>
+                <input type="number" name="quantidade" required min="1" placeholder="Ex: 10">
+            </div>
+
+            <div class="form-group form-full">
+                <label>Observação</label>
+                <input type="text" name="observacao" placeholder="Ex: Compra do fornecedor X, Venda para cliente Y...">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-verde">💾 Registrar movimentação</button>
+            <a href="{{ url_for('listar_movimentacoes') }}" class="btn btn-outline">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function mostrarInfo() {
+    const sel = document.getElementById('selectProduto');
+    const info = document.getElementById('infoProduto');
+    const opt = sel.options[sel.selectedIndex];
+    if (sel.value) {
+        document.getElementById('infoQtd').textContent = opt.dataset.qtd;
+        document.getElementById('infoMin').textContent = opt.dataset.min;
+        info.classList.add('visivel');
+    } else {
+        info.classList.remove('visivel');
+    }
+}
+</script>
+
+{% endblock %}

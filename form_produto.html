@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if produto else 'Novo' }} Produto — EstoqueSimples{% endblock %}
+{% block page_title %}{{ 'Editar Produto' if produto else 'Novo Produto' }}{% endblock %}
+
+{% block content %}
+
+<div class="form-card">
+    <form method="POST">
+        <div class="form-grid">
+            <div class="form-group form-full">
+                <label>Nome do produto *</label>
+                <input type="text" name="nome" required placeholder="Ex: Creme hidratante 200ml"
+                    value="{{ produto['nome'] if produto else '' }}">
+            </div>
+
+            <div class="form-group form-full">
+                <label>Descrição</label>
+                <textarea name="descricao" rows="2" placeholder="Descrição opcional do produto...">{{ produto['descricao'] if produto else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Categoria</label>
+                <input type="text" name="categoria" placeholder="Ex: Cosméticos, Artesanato..."
+                    value="{{ produto['categoria'] if produto else '' }}">
+                <span class="form-hint">Use categorias consistentes para facilitar os filtros.</span>
+            </div>
+
+            <div class="form-group">
+                <label>Estoque mínimo</label>
+                <input type="number" name="estoque_minimo" min="0" value="{{ produto['estoque_minimo'] if produto else 5 }}">
+                <span class="form-hint">Alerta quando estoque atingir esse valor.</span>
+            </div>
+
+            <div class="form-group">
+                <label>Preço de custo (R$) *</label>
+                <input type="text" name="preco_custo" required placeholder="0.00"
+                    value="{{ '%.2f'|format(produto['preco_custo']) if produto else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label>Preço de venda (R$) *</label>
+                <input type="text" name="preco_venda" required placeholder="0.00"
+                    value="{{ '%.2f'|format(produto['preco_venda']) if produto else '' }}">
+            </div>
+
+            {% if not produto %}
+            <div class="form-group">
+                <label>Quantidade inicial</label>
+                <input type="number" name="quantidade" min="0" value="0">
+                <span class="form-hint">Pode ser ajustada depois via movimentações.</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-verde">
+                💾 {{ 'Salvar alterações' if produto else 'Cadastrar produto' }}
+            </button>
+            <a href="{{ url_for('listar_produtos') }}" class="btn btn-outline">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

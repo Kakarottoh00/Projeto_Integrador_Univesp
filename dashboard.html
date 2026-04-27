@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — EstoqueSimples{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block topbar_actions %}
+    <a href="{{ url_for('nova_movimentacao') }}" class="btn btn-verde">
+        ➕ Nova Movimentação
+    </a>
+{% endblock %}
+
+{% block content %}
+
+{% if estoque_baixo %}
+<div class="alerta-estoque">
+    <strong>⚠️ Atenção: {{ estoque_baixo|length }} produto(s) com estoque baixo ou zerado!</strong>
+    {% for p in estoque_baixo[:4] %}
+        <span style="margin-right:12px">• {{ p['nome'] }}: <strong>{{ p['quantidade'] }} un.</strong></span>
+    {% endfor %}
+    {% if estoque_baixo|length > 4 %}<span>e mais {{ estoque_baixo|length - 4 }}...</span>{% endif %}
+</div>
+{% endif %}
+
+<div class="cards-grid">
+    <div class="card">
+        <div class="card-icon azul">📦</div>
+        <div class="card-valor">{{ total_produtos }}</div>
+        <div class="card-label">Produtos cadastrados</div>
+    </div>
+    <div class="card">
+        <div class="card-icon verde">💰</div>
+        <div class="card-valor">R$ {{ "%.2f"|format(valor_total) }}</div>
+        <div class="card-label">Valor total em estoque</div>
+    </div>
+    <div class="card">
+        <div class="card-icon amarelo">⚠️</div>
+        <div class="card-valor">{{ estoque_baixo|length }}</div>
+        <div class="card-label">Produtos com estoque baixo</div>
+    </div>
+    <div class="card">
+        <div class="card-icon verde">✅</div>
+        <div class="card-valor">{{ total_produtos - estoque_baixo|length }}</div>
+        <div class="card-label">Produtos com estoque OK</div>
+    </div>
+</div>
+
+<div class="duas-colunas">
+    <div class="tabela-wrap">
+        <div class="tabela-header">
+            <h3>📋 Últimas movimentações</h3>
+            <a href="{{ url_for('listar_movimentacoes') }}" class="btn btn-outline btn-sm">Ver todas</a>
+        </div>
+        {% if movimentacoes %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Tipo</th>
+                    <th>Qtd</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in movimentacoes %}
+                <tr>
+                    <td>{{ m['produto_nome'] }}</td>
+                    <td><span class="badge {{ m['tipo'] }}">{{ '📥 Entrada' if m['tipo'] == 'entrada' else '📤 Saída' }}</span></td>
+                    <td><strong>{{ m['quantidade'] }}</strong></td>
+                    <td style="color:var(--texto-suave); font-size:0.8rem">{{ m['data'][:16] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">
+            <div class="icon">🔄</div>
+            <p>Nenhuma movimentação registrada ainda.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="tabela-wrap">
+        <div class="tabela-header">
+            <h3>🔴 Estoque crítico</h3>
+            <a href="{{ url_for('listar_produtos') }}" class="btn btn-outline btn-sm">Ver todos</a>
+        </div>
+        {% if estoque_baixo %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Estoque</th>
+                    <th>Mínimo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in estoque_baixo %}
+                <tr>
+                    <td>{{ p['nome'] }}</td>
+                    <td>
+                        <span class="badge {{ 'critico' if p['quantidade'] == 0 else 'baixo' }}">
+                            {{ p['quantidade'] }} un.
+                        </span>
+                    </td>
+                    <td style="color:var(--texto-suave)">{{ p['estoque_minimo'] }}</td>
+                    <td>
+                        <a href="{{ url_for('nova_movimentacao') }}" class="btn btn-verde btn-sm">+ Entrada</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">
+            <div class="icon">🎉</div>
+            <p>Todos os produtos estão com estoque adequado!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
